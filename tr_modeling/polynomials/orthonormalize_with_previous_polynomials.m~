@@ -1,0 +1,6 @@
+function polynomial = ...
+        orthonormalize_with_previous_polynomials(all_polynomials, points, np)
+
+    polynomial = all_polynomials(np);
+    
+    

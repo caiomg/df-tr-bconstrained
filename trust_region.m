@@ -110,6 +110,7 @@ fval_current = model.fvalues(1);
 x_current = model.points_abs(:, model.tr_center);
 sum_rho = 0;
 sum_rho_sqr = 0;
+delay_reduction = 0;
 for iter = 1:iter_max
     if (model.radius < tol_radius)
         break

@@ -10,6 +10,6 @@ x0 = [2;
 
 
 
-[x, fval] = trust_region(f, x0)
+[x, fval] = trust_region({f}, x0)
 
 

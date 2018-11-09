@@ -7,4 +7,4 @@ x0 = [1;
       1;
       1];
 
-[x, fval] = trust_region(f, x0)
+[x, fval] = trust_region({f}, x0)

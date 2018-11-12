@@ -85,6 +85,8 @@ function [model, success] = choose_and_replace_point(model, funcs, bl, bu, optio
                                                         points_num);
                 
                 % Update model and recompute polynomials
+                cache_size = size(model.cached_points, 2);
+                cache_size = min(cache_size, model.cache_max - 1);
                 model.cached_points = [model.points_abs(:, pos), model.cached_points];
                 model.cached_fvalues = [model.fvalues(:, pos), model.cached_fvalues];
                 model.points_abs(:, pos) = new_point_abs;

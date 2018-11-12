@@ -42,8 +42,10 @@ function [model, succeeded, pt_i] = exchange_point(model, new_point, new_fvalues
             pivot_polynomials = orthogonalize_block(pivot_polynomials, new_point_shifted, max_poly_i, block_beginning, last_p);
             
             % Update model
-            model.cached_points = [model.points_abs(:, max_poly_i), model.cached_points];
-            model.cached_fvalues = [model.fvalues(:, max_poly_i), model.cached_fvalues];
+            cache_size = size(model.cached_points, 2);
+            cache_size = min(cache_size, model.cache_max - 1);
+            model.cached_points = [model.points_abs(:, max_poly_i), model.cached_points(:, 1:cache_size)];
+            model.cached_fvalues = [model.fvalues(:, max_poly_i), model.cached_fvalues(:, 1:cache_size)];
             model.points_abs(:, max_poly_i) = new_point;
             model.fvalues(:, max_poly_i) = new_fvalues;
             model.points_shifted = points_shifted;

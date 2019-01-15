@@ -118,12 +118,11 @@ for iter = 1:iter_max
     if true || is_lambda_poised(model, options)
         % Move among points that are part of the model
         model = move_to_best_point(model, bl, bu);
-        model.modeling_polynomials = compute_polynomial_models(model);
         fval_current = model.fvalues(1, model.tr_center);
         x_current = model.points_abs(:, model.tr_center);
-        err_model = check_interpolation(model);
     end
-    
+    model.modeling_polynomials = compute_polynomial_models(model);
+    err_model = check_interpolation(model);
     % Criticality step -- if we are possibly close to the optimum
     criticality_step_performed = false;
     if norm(measure_criticality(model, bl, bu)) <= eps_c

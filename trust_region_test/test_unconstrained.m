@@ -57,7 +57,7 @@ for n = 1:n_problems
 
     options.basis = 'linear';
     try
-        [x_trust, fvalue_trust] = trust_region(f, x0, f(x0), options);
+        [x_trust, fvalue_trust] = trust_region({f}, x0, f(x0), [], [], options);
         fvalue_trust
         f_count_trust = counter.get_count();
         results_unconstrained(n).fval_trust = fvalue_trust;

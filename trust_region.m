@@ -13,7 +13,7 @@ defaultoptions = struct('tol_radius', 1e-5, 'tol_f', 1e-6, ...
                         'gamma_inc', 2, 'gamma_dec', 0.5, ...
                         'criticality_mu', 100, 'criticality_beta', 10, ...
                         'criticality_omega', 0.5, 'basis', 'diagonal hessian', ...
-                        'iter_max', 10000);
+                        'iter_max', 10000, 'print_level', 0);
 
 if nargin < 6
     options = [];
@@ -46,6 +46,8 @@ iter_max = options.iter_max;
 
 initial_radius = options.initial_radius;
 radius_max = options.radius_max;
+print_level = options.print_level;
+
 dimension = size(initial_points, 1);
 
 if (~isempty(bl) && ~isempty(find(initial_points(:, 1) < bl, 1))) || ...
@@ -135,7 +137,9 @@ for iter = 1:iter_max
     iteration_model_fl = is_lambda_poised(model, options);
 
     % Print summary
-    print_iteration(iter, fval_current, rho, model.radius, size(model.points_abs, 2));
+    if print_level >= 1
+        print_iteration(iter, fval_current, rho, model.radius, size(model.points_abs, 2));
+    end
     
     % Compute step
     [trial_point, predicted_red] = solve_tr_subproblem(model, bl, bu, options);

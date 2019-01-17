@@ -37,18 +37,18 @@ function [model, exitflag] = improve_model_nfp(model, funcs, bl, bu, options)
             if p_ini < dim+1
                 % The model is not yet fully linear
                 block_beginning = 2;
-                block_end = p_ini + 1;
+                block_end = p_ini + 1; % actually dim + 1
             else
                 % We can add a point to the quadratic block
                 block_beginning = dim+2;
-                block_end = p_ini + 1;
+                block_end = p_ini + 1; % actually (dim + 1)*(dim + 2)/2
             end
             next_position = p_ini + 1;
             radius_used = radius;
             % Possibly try with smaller radii
             for attempts = 1:3
                 % Iterate through available polynomials
-                for poly_i = next_position:block_end
+                for poly_i = next_position:block_end % not really iterating
                     polynomial = ...
                         orthogonalize_to_other_polynomials(pivot_polynomials, poly_i, ...
                                                            points_shifted, p_ini);

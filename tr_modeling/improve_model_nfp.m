@@ -58,7 +58,7 @@ function [model, exitflag] = improve_model_nfp(model, funcs, bl, bu, options)
                                     radius_used, bl_shifted, bu_shifted, ...
                                     pivot_threshold);
                     if point_found
-                        for found_i = 1:length(new_points_shifted)
+                        for found_i = 1:size(new_points_shifted, 2)
                             new_point_shifted = new_points_shifted(:, found_i);
                             new_pivot_value = new_pivots(found_i);
                             new_point_abs = unshift_point(new_point_shifted);

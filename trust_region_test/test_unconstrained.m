@@ -34,7 +34,7 @@ for n = 1:n_problems
     
     terminate_cutest_problem()
 
-    problem_name = unconstrained_problems{n}
+    problem_name = unconstrained_problems{n};
     results_unconstrained(n).name = problem_name;
     
     prob = setup_cutest_problem(problem_name, '../my_problems/');
@@ -48,27 +48,27 @@ for n = 1:n_problems
     x0 = prob.x;
 
     [x_fmin, fvalue_fmin] = fminunc(f, x0, fminunc_options);
-    fvalue_fmin
-    f_count_fmincon = counter.get_count()
+    f_count_fmincon = counter.get_count();
     counter.reset_count();
     
-    results_unconstrained(n).fval_matlab = fvalue_fmin;
-    results_unconstrained(n).fcount_matlab = f_count_fmincon;
+    results_unconstrained(n).ref.fx = fvalue_fmin;
+    results_unconstrained(n).ref.count = f_count_fmincon;
+    results_unconstrained(n).ref.viol = 0;
 
-    options.basis = 'linear';
+
     try
         [x_trust, fvalue_trust] = trust_region({f}, x0, f(x0), [], [], options);
-        fvalue_trust
         f_count_trust = counter.get_count();
-        results_unconstrained(n).fval_trust = fvalue_trust;
-        results_unconstrained(n).fcount_trust= f_count_trust;
+        results_unconstrained(n).test.fx = fvalue_trust;
+        results_unconstrained(n).test.count = f_count_trust;
+        results_unconstrained(n).test.viol = 0;
     catch this_exception
-        results_unconstrained(n).f_count_trust = counter.get_count();
-        results_unconstrained(n).exception = this_exception;
+        results_unconstrained(n).test.count = counter.get_count();
+        results_unconstrained(n).test.exception = this_exception;
     end
-        
-    f_count_trust = counter.get_count()
+
     counter.reset_count();
+    fprintf(1, format_test_result(results_unconstrained(n)));
 
     terminate_cutest_problem()
 

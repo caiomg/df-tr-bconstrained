@@ -1,5 +1,5 @@
-function [model, model_changed] = rebuild_model(model, options)
-    
+function model = rebuild_model(model, options)
+% REBUILD_MODEL - re-selects the points to include in the model
 
     % Region considered to use points
     radius_factor = options.radius_factor;
@@ -149,7 +149,6 @@ function [model, model_changed] = rebuild_model(model, options)
     model.cached_fvalues = fvalues(:, last_pt_included+1:last_pt_included ...
                                    + cache_size);
 
-    model_changed = last_pt_included < p_ini; % REMOVE ME
 end
 
 

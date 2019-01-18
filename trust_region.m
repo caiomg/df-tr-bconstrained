@@ -125,13 +125,14 @@ for iter = 1:iter_max
     model.modeling_polynomials = compute_polynomial_models(model);
     err_model = check_interpolation(model);
     % Criticality step -- if we are possibly close to the optimum
-    criticality_step_performed = false;
     if norm(measure_criticality(model, bl, bu)) <= eps_c
-        model = criticality_step(model, funcs, bl, bu, options);
+        [model, crit_measure] = criticality_step(model, funcs, bl, bu, options);
         criticality_step_performed = true;
-        if norm(measure_criticality(model, bl, bu)) < tol_f
+        if crit_measure < tol_f
             break;
         end
+    else
+        criticality_step_performed = false;
     end
     iteration_model_fl = is_lambda_poised(model, options);
 

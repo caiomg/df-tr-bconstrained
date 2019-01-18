@@ -30,7 +30,6 @@ if nargin < 3
 end
 
 
-debugging_on = false;
 tol_radius = options.tol_radius;
 tol_f = options.tol_f;
 eps_c = options.eps_c;
@@ -218,10 +217,6 @@ for iter = 1:iter_max
         end
     end
     iter = iter + 1;
-    if debugging_on
-        iter
-    end
-    iter;
 end
 x = model.points_abs(:, model.tr_center);
 fval = model.fvalues(1, model.tr_center);

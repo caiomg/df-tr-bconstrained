@@ -51,14 +51,19 @@ dimension = size(initial_points, 1);
 
 if (~isempty(bl) && ~isempty(find(initial_points(:, 1) < bl, 1))) || ...
         (~isempty(bu) && ~isempty(find(initial_points(:, 1) > bu, 1)))
+    % Initial point not satisfying bounds
+    warning('cmg:initial_point_infeasible', ...
+            'Initial point out of bounds. Point will be replaced');
      if isempty(initial_fvalues)
          % Replace
          initial_points(:, 1) = project_to_bounds(initial_points(:, 1), bl, bu);
      else
-         % Add
-         initial_points = [project_to_bounds(initial_points(:, 1), bl, bu), ...
-                           initial_points];
-         initial_fvalues(:, 1) = evaluate_new_fvalues(funcs, initial_points(:, 1));
+         initial_points(:, 1) = project_to_bounds(initial_points(:, 1), bl, bu);
+         [initial_fvalues(:, 1), succeeded] = ...
+             evaluate_new_fvalues(funcs, initial_points(:, 1));
+         if ~succeeded
+           error('cmg:bad_starting_point', 'Bad starting point');
+         end
      end
 end
 

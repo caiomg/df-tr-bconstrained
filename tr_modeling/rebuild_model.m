@@ -3,6 +3,7 @@ function model = rebuild_model(model, options)
 
     % Region considered to use points
     radius_factor = options.radius_factor;
+    radius_factor_linear_block = radius_factor*options.radius_factor_extra_tol;
 
     % Threshold for pivot polynomials
     pivot_threshold_rel = options.pivot_threshold;
@@ -53,7 +54,7 @@ function model = rebuild_model(model, options)
             block_beginning = 2;
             block_end = dim+1;
             % Linear block -- we allow more points (*2)
-            maxlayer = min(2*radius_factor, distances(end)/radius);
+            maxlayer = min(radius_factor_linear_block, distances(end)/radius);
             if iter > dim+1
                 % We already tested all linear terms
                 % We do not have points to build a FL model

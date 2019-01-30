@@ -90,12 +90,11 @@ if n_initial_points == 1
     n_initial_points = 2;
 end
 % Calculating function values for other points of the set
-if size(initial_fvalues, 2) < n_initial_points
-    for k = 1:n_initial_points
-        [initial_fvalues(:, k), succeeded] = evaluate_new_fvalues(funcs, initial_points(:, k));
-        if ~succeeded
-           error('cmg:bad_starting_point', 'Bad starting point');
-        end
+n_initial_fvalues = size(initial_fvalues, 2);
+for k = n_initial_fvalues + 1:n_initial_points
+    [initial_fvalues(:, k), succeeded] = evaluate_new_fvalues(funcs, initial_points(:, k));
+    if ~succeeded
+       error('cmg:bad_starting_point', 'Bad starting point');
     end
 end
 

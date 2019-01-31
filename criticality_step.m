@@ -13,15 +13,32 @@ tol_radius = options.tol_radius; % tolerance of TR algorithm
 tol_f = options.tol_f;
 
 initial_radius = model.radius;
-while ~is_lambda_poised(model, options) || is_old(model, options)
+model_changed = false;
+if has_distant_points(model, options) || is_old(model, options)
+    model = rebuild_model(model, options);
+    model_changed = true;
+end
+while ~is_lambda_poised(model, options)
     model = ensure_improvement(model, funcs, bl, bu, options);
+    model_changed = true;
+end
+if model_changed
     model.modeling_polynomials = compute_polynomial_models(model);
 end
 measure = norm(measure_criticality(model, bl, bu));
 while (model.radius > mu*measure)
     model.radius = omega*model.radius;
-    while ~is_lambda_poised(model, options) || is_old(model, options)
+
+    model_changed = false;
+    if has_distant_points(model, options) || is_old(model, options)
+        model = rebuild_model(model, options);
+        model_changed = true;
+    end
+    while ~is_lambda_poised(model, options)
         model = ensure_improvement(model, funcs, bl, bu, options);
+        model_changed = true;
+    end
+    if model_changed
         model.modeling_polynomials = compute_polynomial_models(model);
     end
 

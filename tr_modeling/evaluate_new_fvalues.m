@@ -2,7 +2,7 @@ function [fvalues, succeeded] = evaluate_new_fvalues(funcs, point)
 
 
     functions_num = length(funcs);
-    fvalues = zeros(functions_num, 1);
+    fvalues = nan(functions_num, 1);
     succeeded = true;
     for nf = 1:functions_num
         try

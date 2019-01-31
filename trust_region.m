@@ -60,11 +60,8 @@ if (~isempty(bl) && ~isempty(find(initial_points(:, 1) < bl, 1))) || ...
          initial_points(:, 1) = project_to_bounds(initial_points(:, 1), bl, bu);
      else
          initial_points(:, 1) = project_to_bounds(initial_points(:, 1), bl, bu);
-         [initial_fvalues(:, 1), succeeded] = ...
-             evaluate_new_fvalues(funcs, initial_points(:, 1));
-         if ~succeeded
-           error('cmg:bad_starting_point', 'Bad starting point');
-         end
+         initial_fvalues(:, 1) = evaluate_new_fvalues(funcs, ...
+                                                      initial_points(:, 1));
      end
 end
 
@@ -92,18 +89,18 @@ end
 % Calculating function values for other points of the set
 n_initial_fvalues = size(initial_fvalues, 2);
 for k = n_initial_fvalues + 1:n_initial_points
-    [initial_fvalues(:, k), succeeded] = evaluate_new_fvalues(funcs, initial_points(:, k));
-    if ~succeeded
-       error('cmg:bad_starting_point', 'Bad starting point');
-    end
+    initial_fvalues(:, k) = evaluate_new_fvalues(funcs, initial_points(:, k));
 end
-
+% Checking if one of the starting points is unsuited for interpolation
+if ~isempty(find(~isfinite(initial_fvalues), 1))
+    error('cmg:bad_starting_point', 'Bad starting point');
+end
 
 % Initializing model structure
 model = tr_model(initial_points, initial_fvalues, initial_radius);
 model = rebuild_model(model, options);
 model = move_to_best_point(model, bl, bu);
-%basis = band_prioritizing_basis(size(model.points_shifted, 1));
+
 model.modeling_polynomials = compute_polynomial_models(model);
 if size(model.points_abs, 2) < 2
     [model, exitflag] = ensure_improvement(model, funcs, bl, bu, options);
@@ -158,12 +155,17 @@ for iter = 1:iter_max
         [model, mchange_flag] = ensure_improvement(model, funcs, bl, bu, options);
     else
         % Evaluate objective at trial point
-        fval_trial = evaluate_new_fvalues(funcs, trial_point);
+        [fval_trial, f_succeeded] = evaluate_new_fvalues(funcs, trial_point);
         
-        % Actual reduction
-        ared = fval_current - fval_trial;
-        % Agreement factor
-        rho = ared/(predicted_red);
+        if f_succeeded
+            % Actual reduction
+            ared = fval_current - fval_trial;
+            % Agreement factor
+            rho = ared/(predicted_red);
+        else
+            % Step failed
+            rho = -inf;
+        end
 
         % Acceptance of the trial point
         if rho > eta_1

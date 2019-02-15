@@ -1,5 +1,6 @@
 function [model, succeeded, pt_i] = ...
-        exchange_point(model, new_point, new_fvalues, relative_pivot_threshold)
+        exchange_point(model, new_point, new_fvalues, ...
+                       relative_pivot_threshold, allow_exchange_center)
 
     pivot_threshold = min(1, model.radius)*relative_pivot_threshold;
 
@@ -24,7 +25,7 @@ function [model, succeeded, pt_i] = ...
     max_val = 0;
     max_poly_i = 0;
     for poly_i = block_end:-1:block_beginning
-        if poly_i ~= center_i
+        if allow_exchange_center || poly_i ~= center_i
             val = model.pivot_values(poly_i)*...
                   evaluate_polynomial(pivot_polynomials(poly_i), new_point_shifted);
             if abs(max_val) < abs(val)

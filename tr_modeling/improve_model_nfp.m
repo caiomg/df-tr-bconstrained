@@ -19,7 +19,7 @@ function [model, success] = improve_model_nfp(model, funcs, bl, bu, options)
              ['Model either empty or full. ' ...
               'Should not be calling improve_model_nfp']);
     end
-    if is_old(model, options)
+    if is_old(model, options) && is_lambda_poised(model, options)
        error('cmg:model_old', ...
              'Model too old. Should be calling rebuild model');
     end

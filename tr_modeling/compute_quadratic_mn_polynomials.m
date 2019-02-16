@@ -1,4 +1,4 @@
-function polynomials = compute_quadratic_mn_polynomials(points, center_i, fvalues)
+function [polynomials, accuracy] = compute_quadratic_mn_polynomials(points, center_i, fvalues)
 
     [dim, points_num] = size(points);
     functions_num = size(fvalues, 1);
@@ -19,23 +19,28 @@ function polynomials = compute_quadratic_mn_polynomials(points, center_i, fvalue
     
     % Solve symmetric system
     sym_opts.SYM = true;
-    [mult_mn, M_rcond] = linsolve(M, fvalues_diff', sym_opts);
-    if M_rcond < 1e4*eps(1)
-        % This shouldn't happen
-        warning('cmg:badly_conditioned_system', 'Badly conditioned system');
+    [mult_mn, accuracy] = linsolve(M, fvalues_diff', sym_opts);
+    if accuracy < 1e4*eps(1)
+        warning('cmg:ill_conditioned_system', 'Ill conditioned system');
     end
     
-    for n = 1:functions_num
-        g = zeros(dim, 1);
-        H = zeros(dim);
-        
-        for m = 1:points_num - 1
-            g = g + mult_mn(m, n)*points_shifted(:, m);
-            H = H + mult_mn(m, n)*(points_shifted(:, m)*points_shifted(:, m)');
+    if accuracy == 0
+        % This shouldn't happen ever
+        warning('cmg:bad_set_of_points', 'Bad set of points');
+        polynomials = [];
+    else
+        for n = 1:functions_num
+            g = zeros(dim, 1);
+            H = zeros(dim);
+            
+            for m = 1:points_num - 1
+                g = g + mult_mn(m, n)*points_shifted(:, m);
+                H = H + mult_mn(m, n)*(points_shifted(:, m)*points_shifted(:, m)');
+            end
+            c = fvalues(n, center_i);
+            
+            polynomials{n} = matrices_to_polynomial(c, g, H);
         end
-        c = fvalues(n, center_i);
-
-        polynomials{n} = matrices_to_polynomial(c, g, H);
     end
 
 end

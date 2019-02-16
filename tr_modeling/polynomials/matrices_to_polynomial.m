@@ -15,7 +15,7 @@ for k = 1:dim
         ind_coefficients = ind_coefficients + 1;
         coefficients(ind_coefficients) = H(k, m);
         if (H(m, k) ~= H(k, m))
-            warning('H not symmetrical');
+            warning('cmg:h_not_symmetric', 'H not symmetric');
         end
     end
 end

@@ -14,18 +14,9 @@ function [trial_point, trial_decrease] = solve_tr_subproblem(model, bl, bu, opti
 
     trial_decrease = current_fval - trial_fval;
     
-    if current_fval <= trial_fval
-       1; 
-    end
-    
-    tol_interp = max(1e-8, eps(max(1, max(model.fvalues(1, :))))*1e3);
-    n_points = size(model.points_abs, 2);
-    for k = 1:n_points
-        val = evaluate_polynomial(obj_pol, model.points_abs(:, k));
-        error_interp = abs(val - model.fvalues(1, k));
-        if error_interp > tol_interp
-            1;
-        end
+    if trial_decrease <= 0
+       warning('cmg:trial_not_decrease', ...
+               'Trial step does not provide decrease');
     end
 
 end

@@ -33,6 +33,20 @@ function model = rebuild_model(model, options)
     points_shifted = points_shifted(:, pt_order);
     points_abs = points_abs(:, pt_order);
     fvalues = fvalues(:, pt_order);
+    % Remove duplicates
+    to_remove = false(p_ini, 1);
+    for n = 2:p_ini
+       if distances(n) == distances(n-1) ...
+               && norm(points_abs(:, n) - points_abs(:, n-1), inf) == 0
+           to_remove(n) = true;
+       end
+    end
+    if ~isempty(find(to_remove, 1))
+       points_shifted(:, to_remove) = [];
+       points_abs(:, to_remove) = [];
+       fvalues(:, to_remove) = [];
+       p_ini = size(points_abs, 2);
+    end
     
     % Building model
     pivot_polynomials = nfp_basis(dim); % Basis of Newton

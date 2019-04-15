@@ -23,6 +23,24 @@ classdef tr_model < handle
             dim = size(points, 1);
             self.cache_max = 3*dim^2;
         end
+        function x = center_point(self)
+            center_ind = self.tr_center;
+            x = self.points_abs(:, center_ind);
+        end
+        function x = first_point(self)
+            x = self.points_abs(:, 1);
+        end
+        function fval = center_fvalues(self, fval_ind)
+            center_ind = self.tr_center;
+            if nargin < 2
+                fval = self.fvalues(:, center_ind);
+            else
+                fval = self.fvalues(fval_ind, center_ind);
+            end
+        end
+        function n = number_of_points(self)
+            n = size(self.points_abs, 2);
+        end
     end
     
 end

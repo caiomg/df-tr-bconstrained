@@ -1,7 +1,8 @@
 function polynomials = compute_polynomial_models(model)
     
     
-    [dim, points_num] = size(model.points_abs);
+    dim = size(model.center_point(), 1);
+    points_num = model.number_of_points();
     functions_num = size(model.fvalues, 1);
     
     linear_terms = dim+1;

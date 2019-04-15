@@ -6,7 +6,7 @@ function result = has_distant_points(model, options)
     radius_factor_extra = radius_factor*options.radius_factor_extra_tol;
     radius = model.radius;
     points_abs = model.points_abs;
-    center_i = model.tr_center;
+    center_x = model.center_point();
     pivot_values = model.pivot_values;
     [dim, point_num] = size(points_abs);
     linear_terms_num = dim + 1;
@@ -28,7 +28,7 @@ function result = has_distant_points(model, options)
                   'Found pivot zero associated with a point');
         else
             pt_i = pt_i + 1;
-            distance = norm(points_abs(:, pt_i) - points_abs(:, center_i), inf);
+            distance = norm(points_abs(:, pt_i) - center_x, inf);
             if distance > allowed_distance_extra ...
                     || (pt_i > linear_terms_num && distance > allowed_distance)
                 result = true;

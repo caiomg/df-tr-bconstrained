@@ -102,15 +102,15 @@ model = rebuild_model(model, options);
 model = move_to_best_point(model, bl, bu);
 
 model.modeling_polynomials = compute_polynomial_models(model);
-if size(model.points_abs, 2) < 2
+if model.number_of_points < 2
     [model, exitflag] = ensure_improvement(model, funcs, bl, bu, options);
 end
 
 
 rho = 0;
 iter = 1;
-fval_current = model.fvalues(1);
-x_current = model.points_abs(:, model.tr_center);
+fval_current = model.center_fvalues();
+x_current = model.center_point();
 sum_rho = 0;
 sum_rho_sqr = 0;
 delay_reduction = 0;
@@ -121,8 +121,8 @@ for iter = 1:iter_max
     if true || is_lambda_poised(model, options)
         % Move among points that are part of the model
         model = move_to_best_point(model, bl, bu);
-        fval_current = model.fvalues(1, model.tr_center);
-        x_current = model.points_abs(:, model.tr_center);
+        fval_current = model.center_fvalues();
+        x_current = model.center_point();
     end
     model.modeling_polynomials = compute_polynomial_models(model);
     err_model = check_interpolation(model);
@@ -140,7 +140,7 @@ for iter = 1:iter_max
 
     % Print summary
     if print_level >= 1
-        print_iteration(iter, fval_current, rho, model.radius, size(model.points_abs, 2));
+        print_iteration(iter, fval_current, rho, model.radius, model.number_of_points());
     end
     
     % Compute step
@@ -226,6 +226,5 @@ for iter = 1:iter_max
     end
     iter = iter + 1;
 end
-x = model.points_abs(:, model.tr_center);
-fval = model.fvalues(1, model.tr_center);
-
+x = model.center_point();
+fval = model.center_fvalues();

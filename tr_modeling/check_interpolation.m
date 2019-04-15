@@ -11,11 +11,9 @@ tol_2 = 10*sqrt(eps);
 % Remove shift center from all points
 h = model.points_abs;
 n_points = size(h, 2);
-if n_points < model.tr_center
-   1; 
-end
+center_x = model.center_point();
 for m = n_points:-1:1
-    h(:, m) = h(:, m) - model.points_abs(:, model.tr_center);
+    h(:, m) = h(:, m) - center_x;
 end
 
 max_diff = -1;

@@ -6,7 +6,8 @@ function result = is_lambda_poised(model, options)
 
     % pivot_threshold defines how well-poised we demmand a model to be
     pivot_threshold = options.pivot_threshold;
-    [dim, points_num] = size(model.points_abs);
+    dim = size(model.center_point(), 1);
+    points_num = model.number_of_points();
 
     if strcmp(options.basis, 'dummy')
         % If not modeling...

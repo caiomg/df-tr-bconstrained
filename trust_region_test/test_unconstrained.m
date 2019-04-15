@@ -55,6 +55,7 @@ for n = 1:n_problems
     results_unconstrained(n).ref.count = f_count_fmincon;
     results_unconstrained(n).ref.viol = 0;
 
+    options = [];
 
     try
         [x_trust, fvalue_trust] = trust_region({f}, x0, f(x0), [], [], options);

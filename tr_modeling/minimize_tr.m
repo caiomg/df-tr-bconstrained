@@ -84,7 +84,9 @@ function [x, fval, exitflag] = minimize_tr(polynomial, x_tr_center, ...
             linprog_problem.solver = 'linprog';
             linprog_problem.lb = bl_mod;
             linprog_problem.ub = bu_mod;
-            linprog_problem.options.Display = 'off';
+            linprog_problem.options = optimoptions('linprog', ...
+                                                   'Display', 'off', ...
+                                                   'Algorithm', 'dual-simplex');
             [x, ~, exitflag, output] = linprog(linprog_problem);
             fval = f(x);
         end

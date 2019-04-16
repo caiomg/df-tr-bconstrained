@@ -17,12 +17,17 @@ unconstrained_problems = {...
 };
 
 n_problems = length(unconstrained_problems);
-fminunc_options = optimoptions('fminunc', 'Display', 'off', 'SpecifyObjectiveGradient', false);
+fminunc_options = optimoptions('fminunc', 'Display', 'off', ...
+                               'SpecifyObjectiveGradient', false, ...
+                               'Algorithm', 'quasi-newton');
 
 terminate_cutest_problem()
 clear global problem_path_cutest problem_name_cutest problem_data_cutest
 global problem_data_cutest
 clear results_unconstrained
+
+warning('off', 'cmg:ill_conditioned_system')
+warning('off', 'cmg:trial_not_decrease');
 
 results_unconstrained(n_problems).fval_matlab = [];
 results_unconstrained(n_problems).fval_trust = [];

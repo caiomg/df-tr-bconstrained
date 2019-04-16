@@ -14,7 +14,8 @@ defaultoptions = struct('tol_radius', 1e-5, 'tol_f', 1e-6, ...
                         'gamma_inc', 2, 'gamma_dec', 0.5, ...
                         'criticality_mu', 100, 'criticality_beta', 10, ...
                         'criticality_omega', 0.5, 'basis', 'diagonal hessian', ...
-                        'iter_max', 10000, 'print_level', 0);
+                        'iter_max', 10000, 'print_level', 0, ...
+                        'debug', false);
 
 if nargin < 6
     options = [];
@@ -47,6 +48,8 @@ iter_max = options.iter_max;
 initial_radius = options.initial_radius;
 radius_max = options.radius_max;
 print_level = options.print_level;
+
+debug_on = options.debug;
 
 dimension = size(initial_points, 1);
 
@@ -125,7 +128,10 @@ for iter = 1:iter_max
         x_current = model.center_point();
     end
     model.modeling_polynomials = compute_polynomial_models(model);
-    err_model = check_interpolation(model);
+
+    if debug_on
+        err_model = check_interpolation(model);
+    end
     % Criticality step -- if we are possibly close to the optimum
     if norm(measure_criticality(model, bl, bu)) <= eps_c
         [model, crit_measure] = criticality_step(model, funcs, bl, bu, options);

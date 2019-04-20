@@ -24,11 +24,11 @@ function [model, success] = choose_and_replace_point(model, funcs, bl, bu, optio
     if isempty(bu)
         bu = inf(dim, 1);
     end
-    bl_shifted = bl - shift_center;
-    bu_shifted = bu - shift_center;
+    tol_shift = 10*eps(max(1, max(abs(shift_center))));
+    shift_point = @(x) x - shift_center;
     unshift_point = @(x) max(min(x + shift_center, bu), bl);
-    tol_shift = 10*eps(max(1, norm(shift_center, inf)));
-
+    bl_shifted = shift_point(bl);
+    bu_shifted = shift_point(bu);
     
     [~, piv_order] = sort(abs(pivot_values(1:points_num)));
     polynomials_num = length(pivot_polynomials);
@@ -42,29 +42,30 @@ function [model, success] = choose_and_replace_point(model, funcs, bl, bu, optio
         success = false;
     else
         current_pivot_value = pivot_values(pos);
-        [new_points_shifted, new_pivots, point_found] = ...
-            point_new(pivot_polynomials(pos), tr_center_x, radius, ...
-                      bl_shifted, bu_shifted, pivot_threshold);
-        if point_found
-            for found_i = 1:size(new_points_shifted, 2)
-                new_point_shifted = new_points_shifted(:, found_i);
-                new_pivot_value = new_pivots(found_i);
-                new_point_abs = unshift_point(new_point_shifted);
-                [new_fvalues, f_succeeded] = ...
-                    evaluate_new_fvalues(funcs, new_point_abs);
-                if f_succeeded
-                    break
-                else
-                    true;
-                end
+        [new_points_shifted, new_pivots, new_points_unshifted] = ...
+            maximize_polynomial_abs(pivot_polynomials(pos), tr_center_x, radius, ...
+                      bl_shifted, bu_shifted, shift_point, ...
+                                    unshift_point);
+        point_found = false;
+        for found_i = 1:size(new_points_shifted, 2)
+            new_pivot_value = new_pivots(found_i);
+            if abs(new_pivot_value) < pivot_threshold
+                break
+            else
+                point_found = true;
             end
+            new_point_shifted = new_points_shifted(:, found_i);
+            new_point_abs = new_points_unshifted(:, found_i);
+            [new_fvalues, f_succeeded] = ...
+                evaluate_new_fvalues(funcs, new_point_abs);
             if f_succeeded
-                % Normalize polynomial value
-                pivot_polynomials(pos) = ...
-                    normalize_polynomial(pivot_polynomials(pos), ...
-                                         new_point_shifted);
-                
-                % Orthogonalize polynomials on present block (all)
+                break
+            else
+                true;
+            end
+        end
+        success = point_found && f_succeeded;
+        if success
                 if pos <= dim + 1
                     block_beginning = 2;
                     block_end = min(points_num, dim + 1);
@@ -72,6 +73,13 @@ function [model, success] = choose_and_replace_point(model, funcs, bl, bu, optio
                     block_beginning = dim + 2;
                     block_end = points_num;
                 end
+
+                % Normalize polynomial value
+                pivot_polynomials(pos) = ...
+                    normalize_polynomial(pivot_polynomials(pos), ...
+                                         new_point_shifted);
+                
+                % Orthogonalize polynomials on present block (all)
                 % Re-orthogonalize
                 pivot_polynomials(pos) = ...
                     orthogonalize_to_other_polynomials(pivot_polynomials, ...
@@ -95,13 +103,6 @@ function [model, success] = choose_and_replace_point(model, funcs, bl, bu, optio
                 model.pivot_polynomials = pivot_polynomials;
                 model.pivot_values(:, pos) = new_pivot_value*model.pivot_values(:, pos);
                 model.modeling_polynomials = {};
-                success = true;
-            else
-               success = false;
-               % Also could try to optimize again
-            end
-        else
-            success = false;
         end
     end
 end

@@ -30,10 +30,11 @@ function [model, success] = improve_model_nfp(model, funcs, bl, bu, options)
     if isempty(bu)
         bu = inf(dim, 1);
     end
-    bl_shifted = bl - shift_center;
-    bu_shifted = bu - shift_center;
     tol_shift = 10*eps(max(1, max(abs(shift_center))));
+    shift_point = @(x) x - shift_center;
     unshift_point = @(x) max(min(x + shift_center, bu), bl);
+    bl_shifted = shift_point(bl);
+    bu_shifted = shift_point(bu);
     
     % Test if the model is already FL but old
     % Distance measured in inf norm
@@ -58,50 +59,52 @@ function [model, success] = improve_model_nfp(model, funcs, bl, bu, options)
                 orthogonalize_to_other_polynomials(pivot_polynomials, poly_i, ...
                                                    points_shifted, p_ini);
 
-            [new_points_shifted, new_pivots, point_found] = ...
-                point_new(polynomial, tr_center_pt, radius_used, ...
-                          bl_shifted, bu_shifted, pivot_threshold);
-            if point_found
-                for found_i = 1:size(new_points_shifted, 2)
-                    new_point_shifted = new_points_shifted(:, found_i);
-                    new_pivot_value = new_pivots(found_i);
-                    new_point_abs = unshift_point(new_point_shifted);
-                    [new_fvalues, f_succeeded] = ...
-                        evaluate_new_fvalues(funcs, new_point_abs);
-                    if f_succeeded
-                        break
-                    else
-                        true;
-                    end
+            [new_points_shifted, new_pivots, new_points_unshifted] = ...
+                maximize_polynomial_abs(polynomial, tr_center_pt, radius_used, ...
+                          bl_shifted, bu_shifted, shift_point, ...
+                                        unshift_point);
+            point_found = false;
+            for found_i = 1:size(new_points_shifted, 2)
+                new_pivot_value = new_pivots(found_i);
+                if abs(new_pivot_value) < pivot_threshold
+                    break
+                else
+                    point_found = true;
                 end
+                new_point_shifted = new_points_shifted(:, found_i);
+                new_point_abs = new_points_unshifted(:, found_i);
+                [new_fvalues, f_succeeded] = ...
+                    evaluate_new_fvalues(funcs, new_point_abs);
                 if f_succeeded
-                    % Stop trying pivot polynomials
-                    break %(for poly_i)
+                    break
+                else
+                    true;
                 end
+            end
+            if point_found && f_succeeded
+                % Update this polynomial in the set
+                pivot_polynomials(poly_i) = polynomial;
+                % Swap polynomials
+                pivot_polynomials([next_position, poly_i]) = ...
+                    pivot_polynomials([poly_i, next_position]);
+                % Add point
+                points_shifted(:, next_position) = new_point_shifted;
+                % Stop trying pivot polynomials
+                break %(for poly_i)
             end
             % Attempt another polynomial if didn't break
         end
         if point_found && f_succeeded
             break %(for attempts)
-        elseif point_found
+        elseif point_found && radius_used > tol_radius
             % Reduce radius if it didn't break
             radius_used = 0.5*radius_used;
-            if radius_used < tol_radius
-                break
-            end
         else
             break
         end
     end
-    if point_found && f_succeeded
-        % Update this polynomial in the set
-        pivot_polynomials(poly_i) = polynomial;
-        % Swap polynomials
-        pivot_polynomials([next_position, poly_i]) = ...
-            pivot_polynomials([poly_i, next_position]);
-        % Add point
-        points_shifted(:, next_position) = new_point_shifted;
-
+    success = point_found && f_succeeded;
+    if success
         % Normalize polynomial value
         pivot_polynomials(next_position) = ...
             normalize_polynomial(pivot_polynomials(next_position), ...
@@ -127,9 +130,6 @@ function [model, success] = improve_model_nfp(model, funcs, bl, bu, options)
         model.pivot_polynomials = pivot_polynomials;
         model.pivot_values(:, next_position) = new_pivot_value;
         model.modeling_polynomials = {};
-        success = true;
-    else
-        success = false;
     end
     
 end

@@ -230,7 +230,6 @@ for iter = 1:iter_max
             delay_reduction = 0;
         end
     end
-    iter = iter + 1;
 end
 x = model.center_point();
 fval = model.center_fvalues();

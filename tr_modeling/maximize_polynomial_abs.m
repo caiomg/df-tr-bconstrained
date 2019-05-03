@@ -19,7 +19,7 @@ function [new_points, new_pivot_values, new_points_abs] = ...
     
     new_point_max_abs = unshift(new_point_max);
     new_point_max = shift(new_point_max_abs);
-    pivot_min = evaluate_polynomial(polynomial, new_point_max);
+    pivot_max = evaluate_polynomial(polynomial, new_point_max);
     
 
 

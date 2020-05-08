@@ -1,0 +1,6 @@
+addpath('tr_modeling')
+addpath('tr_modeling/polynomials')
+addpath('trust_region_test')
+addpath('solver_matlab')
+%addpath('solver_ipopt')
+%addpath('solver_gurobi')

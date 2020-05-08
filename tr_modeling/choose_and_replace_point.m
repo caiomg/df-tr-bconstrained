@@ -50,7 +50,7 @@ function [model, success] = choose_and_replace_point(model, funcs, bl, bu, optio
         for found_i = 1:size(new_points_shifted, 2)
             new_pivot_value = new_pivots(found_i);
             if abs(new_pivot_value) < pivot_threshold
-                break
+                continue
             else
                 point_found = true;
             end
@@ -102,6 +102,13 @@ function [model, success] = choose_and_replace_point(model, funcs, bl, bu, optio
                 model.fvalues(:, pos) = new_fvalues;
                 model.pivot_polynomials = pivot_polynomials;
                 model.pivot_values(:, pos) = new_pivot_value*model.pivot_values(:, pos);
+                if ~isfinite(model.pivot_values(:, pos)) ...
+                   && isfinite(max_val) && isfinite(model.pivot_values(max_poly_i))
+                     % adjustment
+                     model.pivot_values(:, pos) = sign(model.pivot_values(:, pos))*realmax;
+                     warning('cmg:geometry_degenerating', ...
+                             'Bad geometry of interpolation set for machine precision');
+                end
                 model.modeling_polynomials = {};
         end
     end

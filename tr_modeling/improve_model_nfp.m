@@ -67,7 +67,7 @@ function [model, success] = improve_model_nfp(model, funcs, bl, bu, options)
             for found_i = 1:size(new_points_shifted, 2)
                 new_pivot_value = new_pivots(found_i);
                 if abs(new_pivot_value) < pivot_threshold
-                    break
+                    continue
                 else
                     point_found = true;
                 end

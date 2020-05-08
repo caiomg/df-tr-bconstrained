@@ -25,7 +25,7 @@ function result = check_nfp_polynomials(model)
         end
     end
     if result > tol
-        error('cmg:interp_error', 'Interpolation error');
+        warning('cmg:interp_error', 'Interpolation error: %g', result);
     end
 
 end

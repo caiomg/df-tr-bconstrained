@@ -9,6 +9,11 @@ function model = rebuild_model(model, options)
     pivot_threshold_rel = options.pivot_threshold;
     radius = model.radius;
     pivot_threshold = pivot_threshold_rel*min(1, radius);
+    if radius < 1
+        pivot_threshold_sufficient = max(1e-6, pivot_threshold*2);
+    else
+        pivot_threshold_sufficient = pivot_threshold;
+    end
 
     % All points we know
     points_abs = [model.points_abs, model.cached_points];
@@ -99,7 +104,7 @@ function model = rebuild_model(model, options)
                     pt_max = n;
                 end
             end
-            if abs(max_absval) > pivot_threshold
+            if abs(max_absval) > pivot_threshold_sufficient
                 break % for(layer)
             end
         end

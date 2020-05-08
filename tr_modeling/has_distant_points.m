@@ -40,4 +40,7 @@ function result = has_distant_points(model, options)
             break
         end
     end
+    if exist('result', 'var') == 0
+        'debug';
+    end
 end

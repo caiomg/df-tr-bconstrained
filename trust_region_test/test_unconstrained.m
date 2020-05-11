@@ -28,6 +28,7 @@ clear results_unconstrained
 
 warning('off', 'cmg:ill_conditioned_system')
 warning('off', 'cmg:trial_not_decrease');
+warning('off', 'cmg:geometry_degenerating');
 
 results_unconstrained(n_problems).fval_matlab = [];
 results_unconstrained(n_problems).fval_trust = [];
